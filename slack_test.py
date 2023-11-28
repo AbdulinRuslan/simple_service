@@ -15,6 +15,35 @@ async def test_3():
     print("Функция test_3 была вызвана!")
     return "Результат test_3"
 
+response = {
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Hello again, @user! You've triggered the production smoke test run and here's the results:"
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*PA Notifications - :white_check_mark:*\n Regular - :white_check_mark:\n Pop_up - :white_check_mark:\n Survey -  :white_check_mark:"
+			}
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*Pushy (MOBILE_PUSH) Notifications - :x:*"
+			}
+		}
+	]
+}
+
 @app.route("/slack", methods=["POST"])
 def slack_endpoint():
     text = request.form.get('text', '')
@@ -44,10 +73,7 @@ def slack_endpoint():
         loop.close()
 
     # Ответ в Slack
-    return jsonify({
-        "response_type": "in_channel",
-        "text": response_text
-    })
+    return jsonify(response)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=45000)
