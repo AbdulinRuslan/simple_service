@@ -72,6 +72,7 @@ def slack_endpoint():
     finally:
         loop.close()
 
+    asyncio.sleep(20000)
     # Ответ в Slack
     return jsonify(response)
 
