@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import asyncio
+import time
 
 app = Flask(__name__)
 
@@ -72,7 +73,7 @@ def slack_endpoint():
     finally:
         loop.close()
 
-    asyncio.sleep(20000)
+    time.sleep(20000)
     # Ответ в Slack
     return jsonify(response)
 
