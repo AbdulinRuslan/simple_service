@@ -49,6 +49,8 @@ response = {
 def slack_endpoint():
     text = request.form.get('text', '')
     user_id = request.form.get('user_id', '')
+    auth_header = request.headers.get('Authorization')
+    print(auth_header)
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -73,7 +75,6 @@ def slack_endpoint():
     finally:
         loop.close()
 
-    time.sleep(20)
     # Ответ в Slack
     return jsonify(response)
 
