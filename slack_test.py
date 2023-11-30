@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify
 import asyncio
 import time
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 
@@ -50,7 +53,7 @@ def slack_endpoint():
     text = request.form.get('text', '')
     user_id = request.form.get('user_id', '')
     auth_header = request.headers.get('Authorization')
-    print(auth_header)
+    logging.info(auth_header)
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
