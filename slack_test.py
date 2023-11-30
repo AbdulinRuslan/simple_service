@@ -52,8 +52,10 @@ response = {
 def slack_endpoint():
     text = request.form.get('text', '')
     user_id = request.form.get('user_id', '')
+    body = request.data
     headers = request.headers.items
     logging.info(headers)
+    logging.info(body)
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
