@@ -75,7 +75,14 @@ def slack_endpoint():
     finally:
         loop.close()
 
-
+    header_block = {
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": f"{auth_header}"
+			}
+		}
+    response['blocks'].append(header_block)
     # Ответ в Slack
     return jsonify(response)
 
