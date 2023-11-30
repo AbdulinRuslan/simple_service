@@ -52,13 +52,13 @@ response = {
 def slack_endpoint():
     text = request.form.get('text', '')
     user_id = request.form.get('user_id', '')
-    auth_header = request.headers.get('Authorization')
-    logging.info(auth_header)
+    headers = request.headers.items
+    logging.info(headers)
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
-    response_text = f"Привет <@{user_id}> with {auth_header}! Вы сказали: {text}\n"
+    response_text = f"Привет <@{user_id}>! Вы сказали: {text}\n"
 
     try:
         if text == '1':
@@ -78,14 +78,6 @@ def slack_endpoint():
     finally:
         loop.close()
 
-    header_block = {
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": f"{auth_header}"
-			}
-		}
-    response['blocks'].append(header_block)
     # Ответ в Slack
     return jsonify(response)
 
