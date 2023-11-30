@@ -4,6 +4,7 @@ import time
 import threading
 import logging
 from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
 
 logging.basicConfig(level=logging.INFO)
 
@@ -11,16 +12,16 @@ app = Flask(__name__)
 client = WebClient(token='xoxb-6042236359541-6059253691345-dQXtNiGWGMl04kQATe6o8SFE')
 
 async def test_1():
-    print("Функция test_1 была вызвана!")
+    logging.info("Функция test_1 была вызвана!")
     await asyncio.sleep(5)
     return "Результат test_1"
 
 async def test_2():
-    print("Функция test_2 была вызвана!")
+    logging.info("Функция test_2 была вызвана!")
     return "Результат test_2"
 
 async def test_3():
-    print("Функция test_3 была вызвана!")
+    logging.info("Функция test_3 была вызвана!")
     return "Результат test_3"
 
 blocks = [
@@ -59,9 +60,16 @@ def background_task(task_functions, channel_id):
 
     result_text = ', '.join(results)
 
+    logging.info('going forward!!')
+
     # Отправка результата обратно в Slack
-    client.chat_postMessage(channel=channel_id, blocks=blocks)
-    print('All finished')
+    try:
+        response = client.chat_postMessage(
+            channel=channel_id,
+            blocks=blocks
+        )
+    except SlackApiError as e:
+        logging.error(f"Error posting message: {e}")
 
 @app.route("/slack", methods=["POST"])
 def slack_endpoint():
