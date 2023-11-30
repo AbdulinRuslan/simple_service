@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, request, jsonify
 import asyncio
 import time
@@ -9,7 +11,8 @@ from slack_sdk.errors import SlackApiError
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
-client = WebClient(token='xoxb-6042236359541-6059253691345-prnJ3vyA9gHaFNBxNG7i9Dep')
+SLACK_TOKEN = os.environ.get('SLACK_TOKEN')
+client = WebClient(token=SLACK_TOKEN)
 
 async def test_1():
     logging.info("Функция test_1 была вызвана!")
