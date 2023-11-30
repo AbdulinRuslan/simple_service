@@ -55,7 +55,7 @@ def slack_endpoint():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
-    response_text = f"Привет <@{user_id}>! Вы сказали: {text}\n"
+    response_text = f"Привет <@{user_id}> with {auth_header}! Вы сказали: {text}\n"
 
     try:
         if text == '1':
@@ -74,6 +74,7 @@ def slack_endpoint():
             response_text += ', '.join(results)
     finally:
         loop.close()
+
 
     # Ответ в Slack
     return jsonify(response)
