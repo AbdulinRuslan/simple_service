@@ -1,14 +1,18 @@
 from flask import Flask, request, jsonify
 import asyncio
 import time
+import threading
 import logging
+from slack_sdk import WebClient
 
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
+client = WebClient(token='xoxb-6042236359541-6059253691345-dQXtNiGWGMl04kQATe6o8SFE')
 
 async def test_1():
     print("Функция test_1 была вызвана!")
+    await asyncio.sleep(5)
     return "Результат test_1"
 
 async def test_2():
@@ -19,8 +23,7 @@ async def test_3():
     print("Функция test_3 была вызвана!")
     return "Результат test_3"
 
-response = {
-	"blocks": [
+blocks = [
 		{
 			"type": "section",
 			"text": {
@@ -45,47 +48,45 @@ response = {
 				"text": "*Pushy (MOBILE_PUSH) Notifications - :x:*"
 			}
 		}
-	]
-}
+]
+
+def background_task(task_functions, channel_id):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    results = loop.run_until_complete(asyncio.gather(*[func() for func in task_functions]))
+    loop.close()
+
+    result_text = ', '.join(results)
+
+    # Отправка результата обратно в Slack
+    client.chat_postMessage(channel=channel_id, blocks=blocks)
+    print('All finished')
 
 @app.route("/slack", methods=["POST"])
 def slack_endpoint():
     text = request.form.get('text', '')
     user_id = request.form.get('user_id', '')
-    body = request.data
-    # json = request.json
-    form = request.form
-    headers = request.headers.items
-    logging.info(headers)
-    logging.info(body)
-    # logging.info(json)
-    logging.info(form)
+    # channel_id = request.form.get('channel_id', '')  # ID канала Slack для отправки результата
+    channel_id = 'C061B4S9VJN'
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    task_functions = {
+        '1': test_1,
+        '2': test_2,
+        '3': test_3,
+        'ALL': [test_1, test_2, test_3]
+    }
 
-    response_text = f"Привет <@{user_id}>! Вы сказали: {text}\n"
+    if text.upper() in task_functions:
+        tasks = task_functions[text.upper()]
+        if isinstance(tasks, list):
+            # Запускаем все задачи
+            threading.Thread(target=background_task, args=(tasks, channel_id)).start()
+        else:
+            # Запускаем одну задачу
+            threading.Thread(target=background_task, args=([tasks], channel_id)).start()
 
-    try:
-        if text == '1':
-            result = asyncio.run(test_1())
-            response_text += result
-        elif text == '2':
-            result = asyncio.run(test_2())
-            response_text += result
-        elif text == '3':
-            result = asyncio.run(test_3())
-            response_text += result
-        elif text.upper() == 'ALL':
-            # Запуск всех функций асинхронно и сбор результатов
-            tasks = [test_1(), test_2(), test_3()]
-            results = loop.run_until_complete(asyncio.gather(*tasks))
-            response_text += ', '.join(results)
-    finally:
-        loop.close()
-
-    # Ответ в Slack
-    return jsonify(response)
+    return jsonify({"response_type": "in_channel", "text": f"Привет <@{user_id}>! Задачи запущены, результаты появятся позже."})
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=45000)
