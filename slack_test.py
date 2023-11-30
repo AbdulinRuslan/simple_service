@@ -9,7 +9,7 @@ from slack_sdk.errors import SlackApiError
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
-client = WebClient(token='xoxb-6042236359541-6059253691345-ByHni4DixNeXKphWuwMNje3l')
+client = WebClient(token='xoxb-6042236359541-6059253691345-hbZNOPrEvfgtgysEkL2jCrMG')
 
 async def test_1():
     logging.info("Функция test_1 была вызвана!")
